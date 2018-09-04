@@ -1,0 +1,24 @@
+PPS:
+  - Framework: Python3Framework
+    NFs:
+      - File: Example/Forward1.py
+        Order: 1
+        Input: 10010
+        Output: 10011
+      - File: Example/Forward2.py
+        Order: 2
+        Input: 10012
+        Output: 10013
+  - Framework: ClickFramework
+    NFs:
+      - File: Example/Forward.cli
+        Order: 3
+        Input: 10014
+        Output: 10015 
+VNS:
+  Tool: L2Socket
+  Input:
+    - eth0
+  Output:
+    - wlan0
+NSHP: False
