@@ -3,18 +3,18 @@ PPS:
     NFs:
       - File: Example/Forward1.py
         Order: 1
-        Input: 10010
-        Output: 10011
+        Input: 8010
+        Output: 8011
       - File: Example/Forward2.py
         Order: 2
-        Input: 10012
-        Output: 10013
+        Input: 8012
+        Output: 8013
   - Framework: ClickFramework
     NFs:
       - File: Example/Forward.cli
         Order: 3
-        Input: 10014
-        Output: 10015 
+        Input: 8014
+        Output: 8015 
 VNS:
   Tool: L2Socket
   Input:

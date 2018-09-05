@@ -64,7 +64,6 @@ def createIR(dictYAML, vnsInstance, nshpInstance):
 	#Ordering begins in 1
 	for index in range(1, len(orderedDict)+1):
 		orderedPorts.append(orderedDict[index])
-	print (orderedPorts)
 
 	return InternalRouter(vnsInstance, nshpInstance, orderedPorts)
 
@@ -135,7 +134,7 @@ def platformStart():
 	irInstance.irNetworkStart()
 	time.sleep(0.015)
 	ppsInstace.ppsStart()
-	time.sleep(0.015)
+	time.sleep(0.100)
 	vnsInstance.vnsStart()
 	time.sleep(0.015)
 	if nshpInstance != False:
