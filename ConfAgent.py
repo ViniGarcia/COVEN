@@ -12,7 +12,7 @@ platformOn = False
 ppsInstace = None
 vnsInstance = None
 nshpInstance = None
-irInstance = None 
+irInstance = None
 
 def createPPS(dictYAML):
 
@@ -132,14 +132,14 @@ def platformStart():
 		return "-2"
 
 	irInstance.irNetworkStart()
-	time.sleep(0.015)
+	time.sleep(1)
 	ppsInstace.ppsStart()
-	time.sleep(0.100)
+	time.sleep(1)
 	vnsInstance.vnsStart()
-	time.sleep(0.015)
+	time.sleep(1)
 	if nshpInstance != False:
 		nshpInstance.nshpStart()
-		time.sleep(0.015)
+		time.sleep(1)
 	irInstance.irModulesStart()
 	platformOn = True
 
@@ -190,7 +190,7 @@ def platformOff():
 
 	if platformOn:
 		return "-1"
-	
+
 	sys.stderr.close()
 
 run(host='localhost', port=6667, debug=True)

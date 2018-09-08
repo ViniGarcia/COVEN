@@ -1,24 +1,18 @@
 PPS:
   - Framework: Python3Framework
     NFs:
-      - File: Example/Forward1.py
+      - File: Example/SkypeDPI.py
         Order: 1
         Input: 8010
         Output: 8011
-      - File: Example/Forward2.py
+      - File: Example/SkypeFirewall.py
         Order: 2
         Input: 8012
         Output: 8013
-  - Framework: ClickFramework
-    NFs:
-      - File: Example/Forward.cli
-        Order: 3
-        Input: 8014
-        Output: 8015 
 VNS:
   Tool: L2Socket
   Input:
-    - eth0
-  Output:
     - wlan0
+  Output:
+    - br1
 NSHP: False
