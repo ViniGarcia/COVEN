@@ -25,15 +25,16 @@ class L2SocketTool:
 
 	#============== L2ST METHODS ==============
 
-	def l2stInput(self, pkt):
-
-		self.l2stLock.acquire()
-		self.l2stBuffer.append(bytes(pkt))
-		self.l2stLock.release()
-
 	def l2stStartInp(self):
 
-		sniff(iface = self.l2stNetInterface, prn = self.l2stInput, store = 0, count = 0)
+		inSocket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(3))
+		inSocket.bind((self.l2stNetInterface, 0))
+
+		while True:
+			pkt = inSocket.recvfrom(1514)
+			self.l2stLock.acquire()
+			self.l2stBuffer.append(pkt[0])
+			self.l2stLock.release()
 
 	def l2stStartOut(self):
 
@@ -54,10 +55,10 @@ class L2SocketTool:
 # l2stBuffer = testManager.list()
 # l2stLock = multiprocessing.Lock()
 
-# L2Tool = L2SocketTool(l2stBuffer, l2stLock, "eth0")
-
-# processIn = multiprocessing.Process(target=L2Tool.l2stStartInp, args=())
-# processOut = multiprocessing.Process(target=L2Tool.l2stStartOut, args=())
+# L2Tool01 = L2SocketTool(l2stBuffer, l2stLock, "wlan0")
+# processIn = multiprocessing.Process(target=L2Tool01.l2stStartInp, args=())
+# L2Tool02 = L2SocketTool(l2stBuffer, l2stLock, "eth0")
+# processOut = multiprocessing.Process(target=L2Tool02.l2stStartOut, args=())
 # processIn.start()
 # processOut.start()
 
