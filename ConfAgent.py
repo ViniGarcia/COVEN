@@ -12,7 +12,7 @@ platformOn = False
 ppsInstace = None
 vnsInstance = None
 nshpInstance = None
-irInstance = None 
+irInstance = None
 
 def createPPS(dictYAML):
 
@@ -93,7 +93,7 @@ def platformConf():
 
 	confYAML = request.body.read()
 	try:
-		dictYAML = yaml.load(confYAML)
+		dictYAML = yaml.safe_load(confYAML)
 	except:
 		return "-3"
 
@@ -190,7 +190,7 @@ def platformOff():
 
 	if platformOn:
 		return "-1"
-	
+
 	sys.stderr.close()
 
 run(host='localhost', port=6667, debug=True)

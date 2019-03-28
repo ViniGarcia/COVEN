@@ -2,7 +2,6 @@
 
 import socket
 import multiprocessing
-from scapy.all import *
 
 #============== L2ST CLASS ==============
 
