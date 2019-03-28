@@ -4,6 +4,7 @@ from sys import path
 path.insert(0, 'PPSFrameworks/')
 from Python3Framework import Python3Framework
 from ClickFramework import ClickFramework
+from JavaFramework import JavaFramework
 
 #============== PPS CLASS ==============
 
@@ -20,13 +21,16 @@ class PProcSubsystem:
 	def __init__(self, ppsNFConf):
 
 		self.ppsfInstances = []
-		
-		for NF in ppsNFConf:	
+
+		for NF in ppsNFConf:
 			if NF[0] == 'Python3Framework':
 				self.ppsfInstances.append(Python3Framework(NF[1], NF[2]))
 				continue
 			if NF[0] == 'ClickFramework':
 				self.ppsfInstances.append(ClickFramework(NF[1], NF[2]))
+				continue
+			if NF[0] == 'JavaFramework':
+				self.ppsfInstances.append(JavaFramework(NF[1], NF[2]))
 				continue
 
 			self.ppsfInstances = None
