@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.io.*;
 import java.net.*;
 
@@ -5,16 +6,17 @@ public class Forward {
 
   public static void main(String[] args){
     try{
-      Socket fromIR = new ServerSocket(8008).accept();
+      Socket fromIR = (new ServerSocket(8008)).accept();
       Socket toIR = new Socket("localhost", 8009);
-      String pkt = null;
+      byte[] pktData = new byte[1550];
+      int pktSize = 0;
 
-      DataInputStream pktRcv = new DataInputStream(fromIR.getInputStream());
       DataOutputStream pktSnd = new DataOutputStream(toIR.getOutputStream());
 
       while(true){
-        pkt = (String) pktRcv.readUTF();
-        pktSnd.writeUTF(pkt);
+        pktSize = fromIR.getInputStream().read(pktData);
+        System.out.println("OK1!!");
+        pktSnd.write(Arrays.copyOfRange(pktData, 0, pktSize));
         pktSnd.flush();
       }
 

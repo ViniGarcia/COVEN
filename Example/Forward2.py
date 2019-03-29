@@ -12,5 +12,5 @@ toIR.connect(('localhost', 8013))
 
 while True:
 	pkt = fromIRConnection.recv(1514)
-	print ('OK2!!')
+	print ('OK3!!')
 	toIR.send(pkt)
