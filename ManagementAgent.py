@@ -2,6 +2,7 @@
 
 import multiprocessing
 import subprocess
+import socket
 from bottle import route, run, request
 from requests import get
 
@@ -76,9 +77,29 @@ class ManagementAgent:
         return results
 
     def maRequest(self, rFile, rRequest):
-        print(rFile)
-        print(rRequest)
-        return 0
+
+        if not rFile in self.maComponentsSockets:
+            return "ERROR: INVALID FILE!!"
+        if not rRequest in self.maComponentsRequests[rFile]:
+            return "ERROR: INVALID REQUEST!!"
+
+        serverConnection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serverConnection.settimeout(4.0)
+        try:
+            serverConnection.connect(('localhost', self.maComponentsSockets[rFile]))
+        except:
+            serverConnection.close()
+            return "ERROR: COULD NOT CONNECT THE EXTEND AGENT!!"
+
+        serverConnection.send(bytes(self.maComponentsRequests[rFile][rRequest], 'utf8'))
+        try:
+            answer = serverConnection.recv(3028) #REQUESTS ANSWER MAXIMUM SIZE
+        except:
+            serverConnection.close()
+            return "ERROR: THE EXTEND AGENT DID NOT ANSWER!!"
+
+        serverConnection.close()
+        return answer
 
     #=============== MA SERVERS ===============
 
@@ -100,7 +121,7 @@ class ManagementAgent:
 
     #=============== MA TEST ===============
 
-maInstance = ManagementAgent({"comp1":(6668, 8001), "comp2":(8002, 8003)}, {"comp1":8004, "comp2":8005}, {"comp1":{"lala":"lalaaction", "lele":"leleaction"}, "comp2":{"lulu":"luluaction"}})
+maInstance = ManagementAgent({"Forward.java":(6668, 8001), "Forward1.py":(8002, 8003)}, {"Forward.java":8020, "Forward1.py":8021}, {"Forward.java":{"Packets":"PP"}, "Forward1.py":{"Packets":"PP"}})
 maInstance.maStart()
 
 while True:
@@ -115,8 +136,7 @@ while True:
         response = get('http://localhost:6668/ma/check')
         print(response.text)
     if userInput == 'request':
-        response = get('http://localhost:6668/ma/request/comp1/lala')
+        response = get('http://localhost:6668/ma/request/Forward1.py/Packets')
         print(response.text)
-
 
 #==================================================
