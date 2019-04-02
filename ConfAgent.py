@@ -7,12 +7,14 @@ from PProcSubsystem import PProcSubsystem
 from VNetSubsystem import VNetSubsystem
 from NSHProcessor import NSHProcessor
 from InternalRouter import InternalRouter
+from ManagementAgent import ManagementAgent
 
 platformOn = False
 ppsInstace = None
 vnsInstance = None
 nshpInstance = None
 irInstance = None
+maInstance = None
 
 def createPPS(dictYAML):
 
@@ -53,6 +55,46 @@ def createNSHP(dictYAML):
 	else:
 		return False
 
+def createMA(dictYAML):
+
+	if not 'PPS' in dictYAML:
+		return None
+	if len(dictYAML['PPS']) == 0:
+		return None
+
+	componentsPorts = {}
+	componentsSockets = {}
+	componentRequests = {}
+
+	for request in dictYAML['PPS']:
+		if not 'NFs' in request:
+			return None
+
+		for netFunction in request['NFs']:
+			if not 'File' in netFunction:
+				return None
+			if not 'Input' in netFunction:
+				return None
+			if not 'Output' in netFunction:
+				return None
+
+			nfName = netFunction['File'].split('/')[-1]
+			componentsPorts[nfName] = (netFunction['Input'], netFunction['Output'])
+
+			if not 'EMA' in netFunction:
+				continue
+			if not 'Port' in netFunction['EMA']:
+				return None
+
+			componentsSockets[nfName] = netFunction['EMA']['Port']
+
+			if not 'Requests' in netFunction['EMA']:
+				return None
+
+			componentRequests[nfName] = netFunction['EMA']['Requests']
+
+	return ManagementAgent(componentsPorts, componentsSockets, componentRequests)
+
 def createIR(dictYAML, vnsInstance, nshpInstance):
 
 	orderedDict = {}
@@ -84,6 +126,7 @@ def platformConf():
 	global ppsInstace
 	global vnsInstance
 	global nshpInstance
+	global maInstance
 	global irInstance
 
 	if platformOn:
@@ -109,6 +152,12 @@ def platformConf():
 		vnsInstance = None
 		ppsInstace = None
 		return "-6"
+	maInstance = createMA(dictYAML)
+	if maInstance == None:
+		nshpInstance = None
+		vnsInstance = None
+		ppsInstace = None
+		return "-7"
 
 	if nshpInstance != False:
 		irInstance = createIR(dictYAML, vnsInstance, nshpInstance)
@@ -124,6 +173,7 @@ def platformStart():
 	global ppsInstace
 	global vnsInstance
 	global nshpInstance
+	global maInstance
 	global irInstance
 
 	if platformOn:
@@ -134,8 +184,10 @@ def platformStart():
 	irInstance.irNetworkStart()
 	time.sleep(0.015)
 	ppsInstace.ppsStart()
-	time.sleep(1.000)
+	time.sleep(1.500)
 	vnsInstance.vnsStart()
+	time.sleep(0.015)
+	maInstance.maStart()
 	time.sleep(0.015)
 	if nshpInstance != False:
 		nshpInstance.nshpStart()
@@ -150,12 +202,14 @@ def platformStop():
 	global ppsInstace
 	global vnsInstance
 	global nshpInstance
+	global maInstance
 	global irInstance
 
 	if not platformOn:
 		return "-1"
 
 	irInstance.irStop()
+	maInstance.maStop()
 	vnsInstance.vnsStop()
 	if nshpInstance != False:
 		nshpInstance.nshpStop()
@@ -170,6 +224,7 @@ def platformReset():
 	global ppsInstace
 	global vnsInstance
 	global nshpInstance
+	global maInstance
 	global irInstance
 
 	if platformOn:
@@ -180,13 +235,13 @@ def platformReset():
 	ppsInstace = None
 	vnsInstance = None
 	nshpInstance = None
+	maInstance = None
 	irInstance = None
 
 @route('/off/', method='POST')
 def platformOff():
 
 	global platformOn
-
 
 	if platformOn:
 		return "-1"
