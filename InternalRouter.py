@@ -20,7 +20,7 @@ class ppsiCommunication:
 	ppsiInConn = None
 
 	def __init__(self, ppsiInPort, ppsiOutPort):
-		
+
 		self.ppsiInPort = ppsiInPort
 		self.ppsiOutPort = ppsiOutPort
 		if self.ppsiInPort:
@@ -36,7 +36,7 @@ class ppsiCommunication:
 		self.ppsiInSocket.listen(1)
 		self.ppsiInConn, clientData = self.ppsiInSocket.accept()
 		self.ppsiOutSocket.connect(('localhost', self.ppsiOutPort))
-		
+
 		while (True):
 			pkt = self.ppsiInConn.recv(1514)
 			self.ppsiOutSocket.send(pkt)
@@ -67,9 +67,6 @@ class InternalRouter:
 	PPSNSHPProcess = None
 	NSHPVNSProcess = None
 
-	#vnsInstance = VNetSubsystem instance
-	#nshpInstance = NSHProcessor instance
-	#irOrdIntPorts = List of Tuples of Integers - (porntIn, portOut)
 	def __init__(self, vnsInstance, nshpInstance, irOrdIntPorts):
 
 		if vnsInstance.vnsInBuffers:
@@ -85,7 +82,7 @@ class InternalRouter:
 			self.irIngressSocket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1514)
 			self.irEgressSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.irIngressSocket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1514)
-			
+
 	#============== IR METHODS ==============
 
 	def irPPSPPSServer(self):
@@ -145,7 +142,7 @@ class InternalRouter:
 			self.irEgressConnection, clientData = self.irEgressSocket.accept()
 		else:
 			return
-		
+
 		while True:
 			pkt = self.irEgressConnection.recv(1514)
 			self.irReiNSHPConnection[0][1].acquire()
@@ -153,7 +150,7 @@ class InternalRouter:
 			self.irReiNSHPConnection[0][1].release()
 
 	def irNSHPVNSServer(self):
-		
+
 		if not self.irOrdIntPorts:
 			return
 
@@ -165,7 +162,7 @@ class InternalRouter:
 				self.irOutputConnection[1].acquire()
 				self.irOutputConnection[0].append(pkt)
 				self.irOutputConnection[1].release()
-				
+
 	def irPPSVNSServer(self):
 
 		if self.irOrdIntPorts:
@@ -174,7 +171,7 @@ class InternalRouter:
 			self.irEgressConnection, clientData = self.irEgressSocket.accept()
 		else:
 			return
-		
+
 		while True:
 			pkt = self.irEgressConnection.recv(1514)
 			self.irOutputConnection[1].acquire()
@@ -212,7 +209,7 @@ class InternalRouter:
 			self.VNSPPSProcess.start()
 
 	def irStop(self):
-		
+
 		if self.PPSPPSProcesses:
 			for process in self.PPSPPSProcesses:
 				process.terminate()
@@ -286,4 +283,3 @@ class InternalRouter:
 # 		print (irInstance.irOutputConnection[0])
 
 #==================================================
-		

@@ -24,7 +24,7 @@ PPS:
 VNS:
   Tool: L2Socket
   Input:
-    - wlan0
-  Output:
     - eth0
+  Output:
+    - wlan0
 NSHP: False
