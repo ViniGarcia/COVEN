@@ -182,16 +182,16 @@ def platformStart():
 		return "-2"
 
 	irInstance.irNetworkStart()
-	time.sleep(0.015)
+	time.sleep(0.500)
 	ppsInstace.ppsStart()
-	time.sleep(1.500)
+	time.sleep(1.000)
 	vnsInstance.vnsStart()
-	time.sleep(0.015)
+	time.sleep(0.500)
 	maInstance.maStart()
-	time.sleep(0.015)
+	time.sleep(0.500)
 	if nshpInstance != False:
 		nshpInstance.nshpStart()
-		time.sleep(0.015)
+		time.sleep(0.500)
 	irInstance.irModulesStart()
 	platformOn = True
 

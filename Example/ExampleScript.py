@@ -28,3 +28,19 @@ while True:
 		print (response.text)
 	if userInput == 'end':
 		break
+
+	if userInput == 'list':
+	    response = get('http://localhost:6668/ma/list')
+	    print(response.text)
+	if userInput == 'check':
+	    response = get('http://localhost:6668/ma/check')
+	    print(response.text)
+	if userInput == 'request1':
+	    response = get('http://localhost:6668/ma/request/Forward.java/Packets')
+	    print(response.text)
+	if userInput == 'request2':
+	    response = get('http://localhost:6668/ma/request/Forward1.py/Packets')
+	    print(response.text)
+	if userInput == 'request3':
+	    response = get('http://localhost:6668/ma/request/Forward2.py/Packets')
+	    print(response.text)
