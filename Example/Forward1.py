@@ -45,6 +45,7 @@ class Forward:
 
 		while True:
 			pkt = fromIRConnection.recv(1514)
+			self.processedPackets.value += 1
 			print ('OK2!!')
 			toIR.send(pkt)
 

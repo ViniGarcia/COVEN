@@ -134,7 +134,7 @@ def platformStart():
 	irInstance.irNetworkStart()
 	time.sleep(0.015)
 	ppsInstace.ppsStart()
-	time.sleep(0.100)
+	time.sleep(1.000)
 	vnsInstance.vnsStart()
 	time.sleep(0.015)
 	if nshpInstance != False:

@@ -121,22 +121,28 @@ class ManagementAgent:
 
     #=============== MA TEST ===============
 
-maInstance = ManagementAgent({"Forward.java":(6668, 8001), "Forward1.py":(8002, 8003)}, {"Forward.java":8020, "Forward1.py":8021}, {"Forward.java":{"Packets":"PP"}, "Forward1.py":{"Packets":"PP"}})
-maInstance.maStart()
-
-while True:
-    userInput = input('Input: ')
-    if userInput == 'end':
-    	maInstance.maStop()
-    	break
-    if userInput == 'list':
-        response = get('http://localhost:6668/ma/list')
-        print(response.text)
-    if userInput == 'check':
-        response = get('http://localhost:6668/ma/check')
-        print(response.text)
-    if userInput == 'request':
-        response = get('http://localhost:6668/ma/request/Forward1.py/Packets')
-        print(response.text)
+# maInstance = ManagementAgent({"Forward.java":(8008, 8009), "Forward1.py":(8010, 8011), "Forward2.py":(8012, 8013), "Forward.cli":(8014, 8015)}, {"Forward.java":8020, "Forward1.py":8021, "Forward2.py":8022, "Forward.cli":8023}, {"Forward.java":{"Packets":"PP"}, "Forward1.py":{"Packets":"PP"}, "Forward2.py":{"Packets":"PP"}, "Forward.cli":{"Packets":"PP"}})
+# maInstance.maStart()
+#
+# while True:
+#     userInput = input('Input: ')
+#     if userInput == 'end':
+#     	maInstance.maStop()
+#     	break
+#     if userInput == 'list':
+#         response = get('http://localhost:6668/ma/list')
+#         print(response.text)
+#     if userInput == 'check':
+#         response = get('http://localhost:6668/ma/check')
+#         print(response.text)
+#     if userInput == 'request1':
+#         response = get('http://localhost:6668/ma/request/Forward.java/Packets')
+#         print(response.text)
+#     if userInput == 'request2':
+#         response = get('http://localhost:6668/ma/request/Forward1.py/Packets')
+#         print(response.text)
+#     if userInput == 'request3':
+#         response = get('http://localhost:6668/ma/request/Forward2.py/Packets')
+#         print(response.text)
 
 #==================================================
