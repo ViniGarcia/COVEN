@@ -55,6 +55,5 @@ Carlos Raniery Paula dos Santos (Federal University of Santa Maria - Brazil)<br/
 -> An NSH-Enabled Architecture for Virtualized Network Function Platforms<br/>
 V. Fülber Garcia, L. da Cruz Marcuzzo, G. Venâncio de Souza, L. Bondan, J. Campos Nobre, A. Egon Schaeffer-Filho, C. R. Paula dos Santos, L. Zambenedetti Granville, E. P. Duarte Júnior, "An NSH-Enabled Architecture for Virtualized Network Function Platforms", 2019. The 33nd International Conference on Advanced Information Networking and Applications (AINA), Matsue, Japan, 2019.
 
-<br/>
 -> Towards a Flexible Architecture for Virtualized Network Function Platforms
 V. Fülber Garcia, L. da Cruz Marcuzzo, E. P. Duarte Júnior, C. R. Paula dos Santos, "Towards a Flexible Architecture for Virtualized Network Function Platforms", 2019. The ACM Latin American Student Workshop on Data Communication Networks (LANCOMM), Gramado, Brazil, 2019.
