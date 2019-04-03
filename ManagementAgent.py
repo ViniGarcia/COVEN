@@ -149,4 +149,3 @@ class ManagementAgent:
 # 	    print(response.text)
 
 #==================================================
-#Socket(TCP,127.0.0.1,8015)
