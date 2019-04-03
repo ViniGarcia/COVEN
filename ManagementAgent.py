@@ -121,7 +121,7 @@ class ManagementAgent:
 
     #=============== MA TEST ===============
 
-# maInstance = ManagementAgent({"Forward.java":(8008, 8009), "Forward1.py":(8010, 8011), "Forward2.py":(8012, 8013), "Forward.cli":(8014, 8015)}, {"Forward.java":8020, "Forward1.py":8021, "Forward2.py":8022, "Forward.cli":8023}, {"Forward.java":{"Packets":"PP"}, "Forward1.py":{"Packets":"PP"}, "Forward2.py":{"Packets":"PP"}, "Forward.cli":{"Packets":"PP"}})
+# maInstance = ManagementAgent({"Forward.java":(8008, 8009), "Forward1.py":(8010, 8011), "Forward2.py":(8012, 8013), "Forward.cli":(8014, 8015)}, {"Forward.java":8020, "Forward1.py":8021, "Forward2.py":8022, "Forward.cli":8023}, {"Forward.java":{"Packets":"PP"}, "Forward1.py":{"Packets":"PP"}, "Forward2.py":{"Packets":"PP"}, "Forward.cli":{"Packets":"READ packages\n"}})
 # maInstance.maStart()
 #
 # while True:
@@ -144,5 +144,9 @@ class ManagementAgent:
 #     if userInput == 'request3':
 #         response = get('http://localhost:6668/ma/request/Forward2.py/Packets')
 #         print(response.text)
+#     if userInput == 'request4':
+# 	    response = get('http://localhost:6668/ma/request/Forward.cli/Packets')
+# 	    print(response.text)
 
 #==================================================
+#Socket(TCP,127.0.0.1,8015)

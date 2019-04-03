@@ -91,6 +91,8 @@ def createMA(dictYAML):
 			if not 'Requests' in netFunction['EMA']:
 				return None
 
+			for operation in netFunction['EMA']['Requests']:
+				netFunction['EMA']['Requests'][operation] = netFunction['EMA']['Requests'][operation].replace('\\n', '\n')
 			componentRequests[nfName] = netFunction['EMA']['Requests']
 
 	return ManagementAgent(componentsPorts, componentsSockets, componentRequests)

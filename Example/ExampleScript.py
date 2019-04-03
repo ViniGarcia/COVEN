@@ -44,3 +44,6 @@ while True:
 	if userInput == 'request3':
 	    response = get('http://localhost:6668/ma/request/Forward2.py/Packets')
 	    print(response.text)
+	if userInput == 'request4':
+	    response = get('http://localhost:6668/ma/request/Forward.cli/Packets')
+	    print(response.text)

@@ -33,6 +33,10 @@ PPS:
         Order: 4
         Input: 8014
         Output: 8015
+        EMA:
+          Port: 8023
+          Requests:
+            Packets: READ packages\n
 VNS:
   Tool: L2Socket
   Input:
