@@ -16,12 +16,11 @@ COVEN is being developed using standard Python 3 language and other libraries su
 3. Scapy (pip3 install scapy)<br/>
 4. NetCat (apt-get install netcat)
 
-<br/>
 Currently, the COVEN platform has support for network functions or network functions components developed with:<br/>
-1. Python 3 (apt-get install python3)<br/>
-2. Java Script (apt-get install nodejs)<br/>
-3. Java (apt-get install default-jdk)<br/>
-4. Click Modular Router (git clone https://github.com/kohler/click.git)
+- Python 3 (apt-get install python3)<br/>
+- Java Script (apt-get install nodejs)<br/>
+- Java (apt-get install default-jdk)<br/>
+- Click Modular Router (git clone https://github.com/kohler/click.git)
 
 ### Project steps
 
