@@ -1,0 +1,20 @@
+PPS:
+  - Framework: Python3Framework
+    NFs:
+      - File: L7Firewall/SkypeDPI.py
+        Order: 1
+        Input: 8010
+        Output: 8011
+  - Framework: JavaFramework
+    NFs:
+      - File: L7Firewall/SkypeFirewall.java
+        Order: 2
+        Input: 8012
+        Output: 8013
+VNS:
+  Tool: L2Socket
+  Input:
+    - wlan0
+  Output:
+    - eth0
+NSHP: False
