@@ -34,6 +34,16 @@ Currently, the COVEN platform has support for network functions or network funct
 8. Packet accelerators integration with VNS (WAITING)<br/>
 9. Graphical interface (WAITING)
 
+### Execute example
+
+To execute the project example follow these steps:
+1. Execute the platform configuration agent (python3 ConfigurationAgent.py)
+2. Execute the example script in Example folder (python3 ExampleScript.py)
+3. In the example script execute the "configure"
+4. In the example script execute the "start"
+
+After that, the platform and the network function components will be running. To stop the server execute "status", "stop", "reset", "off", and "end". If the the network function components are running management operations can be requested by the commands "list", "check", "request1", "request2", "request3", and "request4".
+
 ### Support
 
 Contact us towards git issues requests or by the e-mail vfulber@inf.ufsm.br.
