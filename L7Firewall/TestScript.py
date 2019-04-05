@@ -1,7 +1,12 @@
 import yaml
+import sys
 from requests import get, post, put
 
-exampleFile = open('Example.yaml', 'r')
+if len(sys.argv) != 2:
+	print("Execution: python3 TestScript.py <yaml_file>")
+	sys.exit()
+
+exampleFile = open(sys.argv[1], 'r')
 fileData = exampleFile.read()
 yamlData = yaml.parse(exampleFile.read())
 exampleFile.close()
