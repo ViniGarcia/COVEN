@@ -5,7 +5,7 @@ import os
 
 #============== EXE CLASS ==============
 
-class EXEFramework:
+class ExeFramework:
 
 	#============== EXE ATTRIBUTES ==============
 
@@ -27,10 +27,13 @@ class EXEFramework:
 
 	def start(self):
 
+		if not self.exefNFPath.startswith('/') and not self.exefNFPath.startswith('./'):
+			self.exefNFPath = './' + self.exefNFPath
+
 		if self.exefNFArgs:
-			self.exefNFProcess = subprocess.Popen(['./' + self.exefNFPath] + self.exefNFArgs)
+			self.exefNFProcess = subprocess.Popen([self.exefNFPath] + self.exefNFArgs)
 		else:
-			self.exefNFProcess = subprocess.Popen(['./' + self.exefNFPath])
+			self.exefNFProcess = subprocess.Popen([self.exefNFPath])
 
 	def stop(self):
 
@@ -38,7 +41,7 @@ class EXEFramework:
 
 #============== EXE TEST ==============
 
-# ExecutableFramework = EXEFramework('ForwardC', None)
+# ExecutableFramework = ExeFramework('ForwardC', None)
 # ExecutableFramework.start()
 #
 # while True:

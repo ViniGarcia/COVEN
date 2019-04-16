@@ -5,6 +5,7 @@ path.insert(0, 'PPSFrameworks/')
 from Python3Framework import Python3Framework
 from ClickFramework import ClickFramework
 from JavaFramework import JavaFramework
+from ExeFramework import ExeFramework
 
 #============== PPS CLASS ==============
 
@@ -31,6 +32,9 @@ class PProcSubsystem:
 				continue
 			if NF[0] == 'JavaFramework':
 				self.ppsfInstances.append(JavaFramework(NF[1], NF[2]))
+				continue
+			if NF[0] == 'ExeFramework':
+				self.ppsfInstances.append(ExeFramework(NF[1], NF[2]))
 				continue
 
 			self.ppsfInstances = None
