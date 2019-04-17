@@ -16,17 +16,15 @@ PPS:
         Input: 8010
         Output: 8011
         EMA:
-          Port: 8021
+          Port: 9021
           Requests:
             Packets: PP
-      - File: Example/Forward2.py
+  - Framework: ExeFramework
+    NFs:
+      - File: Example/ForwardC
         Order: 3
         Input: 8012
         Output: 8013
-        EMA:
-          Port: 8022
-          Requests:
-            Packets: PP
   - Framework: ClickFramework
     NFs:
       - File: Example/Forward.cli

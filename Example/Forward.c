@@ -36,7 +36,10 @@ int main(int argc, char const *argv[])
     serverAddress.sin_port = htons(8013);
     if (connect(serverSocket, (struct sockaddr *)&serverAddress, sizeof(struct sockaddr)) == -1) exit(-7);
 
-    dataBufferLen = read(clientSocket , dataBuffer, 1024);
-    send(serverSocket , dataBuffer , dataBufferLen , 0);
+    while(1){
+      dataBufferLen = read(clientSocket , dataBuffer, 1516);
+      printf("OK3!! %d\n", dataBufferLen);
+      send(serverSocket , dataBuffer , dataBufferLen , 0);
+    }
     return 0;
 }
