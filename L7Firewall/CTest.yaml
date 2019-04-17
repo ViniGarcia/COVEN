@@ -5,7 +5,9 @@ PPS:
         Order: 1
         Input: 8010
         Output: 8011
-      - File: L7Firewall/SkypeFirewall.py
+  - Framework: ExeFramework
+    NFs:
+      - File: L7Firewall/SkypeFirewallC
         Order: 2
         Input: 8012
         Output: 8013
