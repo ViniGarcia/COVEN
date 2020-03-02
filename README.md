@@ -67,3 +67,6 @@ V. Fülber Garcia, L. da Cruz Marcuzzo, G. Venâncio de Souza, L. Bondan, J. Cam
 
 -> Towards a Flexible Architecture for Virtualized Network Function Platforms<br/>
 V. Fülber Garcia, L. da Cruz Marcuzzo, E. P. Duarte Júnior, C. R. Paula dos Santos, "Towards a Flexible Architecture for Virtualized Network Function Platforms", 2019. The ACM Latin American Student Workshop on Data Communication Networks (LANCOMM), Gramado, Brazil, 05-2019.
+
+-> On the Design of a Flexible Architecture for Virtualized Network Function Platforms<br/>
+V. Fülber Garcia, L. da Cruz Marcuzzo, A. Huff, L. Bondan, J. C. Nobre, A. E. Schaeffer-Filho, C. R. P. dos Santos, L. Z. Granville, E. P. Duarte Junior, "On the Design of a Flexible Architecture for Virtualized Network Function Platforms", 2019. The IEEE Global Communications Conference (GLOBECOM), Waikoloa, USA, 12-2019.
