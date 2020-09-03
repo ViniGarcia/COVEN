@@ -1,7 +1,15 @@
+import os
+import sys
 import yaml
 import time
-import sys
-from bottle import route, run, request
+import socket
+import shutil
+import zipfile
+import requests
+import datetime
+
+from multiprocessing import Process
+from bottle import route, run, request, Bottle, ServerAdapter
 
 from PProcSubsystem import PProcSubsystem
 from VNetSubsystem import VNetSubsystem
@@ -15,6 +23,31 @@ vnsInstance = None
 nshpInstance = None
 irInstance = None
 maInstance = None
+
+# ###################################### BOTTLE SERVER #######################################
+
+class ConfAgentServer(ServerAdapter):
+    server = None
+
+    def run(self, handler):
+
+        from wsgiref.simple_server import make_server, WSGIRequestHandler
+
+        if self.quiet:
+            class QuietHandler(WSGIRequestHandler):
+                def log_request(*args, **kw): pass
+            self.options['handler_class'] = QuietHandler
+        
+        self.server = make_server(self.host, self.port, handler, **self.options)
+        self.server.serve_forever()
+
+    def stop(self):
+    	self.server.server_close()
+
+httpInterface = Bottle()
+httpServer = ConfAgentServer(host="localhost", port=6667)
+
+# ###################################### CONFIGURATION FUNCTIONS #######################################
 
 def createPPS(dictYAML):
 
@@ -111,7 +144,9 @@ def createIR(dictYAML, vnsInstance, nshpInstance):
 
 	return InternalRouter(vnsInstance, nshpInstance, orderedPorts)
 
-@route('/status/', method='GET')
+# ###################################### HTTP INTERFACE #######################################
+
+@httpInterface.route('/status/', method='GET')
 def platformStatus():
 
 	global platformOn
@@ -121,7 +156,7 @@ def platformStatus():
 	else:
 		return 'Off'
 
-@route('/configure/', method='POST')
+@httpInterface.route('/configure/', method='POST')
 def platformConf():
 
 	global platformOn
@@ -168,7 +203,7 @@ def platformConf():
 
 	return "0"
 
-@route('/start/', method='POST')
+@httpInterface.route('/start/', method='POST')
 def platformStart():
 
 	global platformOn
@@ -197,7 +232,7 @@ def platformStart():
 	irInstance.irModulesStart()
 	platformOn = True
 
-@route('/stop/', method='POST')
+@httpInterface.route('/stop/', method='POST')
 def platformStop():
 
 	global platformOn
@@ -219,7 +254,7 @@ def platformStop():
 
 	platformOn = False
 
-@route('/reset/', method='POST')
+@httpInterface.route('/reset/', method='POST')
 def platformReset():
 
 	global platformOn
@@ -240,14 +275,84 @@ def platformReset():
 	maInstance = None
 	irInstance = None
 
-@route('/off/', method='POST')
+@httpInterface.route('/off/', method='POST')
 def platformOff():
-
+	
 	global platformOn
+	global httpServer
 
 	if platformOn:
 		return "-1"
 
-	sys.stderr.close()
+	closeSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	closeSocket.sendto("close".encode("utf-8"), ('localhost', 12345))
+	closeSocket.close()
 
-run(host='localhost', port=6667, debug=True)
+	httpServer.stop()
+
+# ###################################### SOCKET BASIC INTERFACE #######################################
+
+def socketPackage(socketAgent, fileName, fileSize):
+	
+	filePackage = open("./NFPackages/" + fileName, "wb+")
+	fileReceived = 0
+	while fileReceived < fileSize:
+		data, client = socketAgent.recvfrom(1024)
+		filePackage.write(data)
+		fileReceived = fileReceived + len(data)
+	filePackage.close()
+	return 0
+
+def socketAgent(interfaceIP):
+	print("SOCKET INTERFACE IS RUNNING AT " + interfaceIP + ":12345\n")
+	socketAgent = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	socketAgent.bind((interfaceIP, 12345))
+
+	while True:
+		request, client = socketAgent.recvfrom(1024)
+		request = request.decode("utf-8")
+		print(client[0], "- -", "[" + datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "]", "\"SOCK REQ " + request + "\"")
+
+		if request.startswith("package"):
+			data = request.split("|")
+			if len(data) != 3:
+				continue
+			if not data[2].isdigit():
+				continue
+			response = socketPackage(socketAgent, data[1], int(data[2]))
+		
+		elif request.startswith("install"):
+			data = request.split("|")
+			if len(data) != 2:
+				continue
+			if not data[1] in os.listdir("./NFPackages/"):
+				continue
+			with zipfile.ZipFile("./NFPackages/" + data[1], 'r') as zipPackage:
+				folderName = data[1][:data[1].rfind(".")]
+				if folderName in os.listdir("./NFPackages/"):
+					shutil.rmtree("./NFPackages/" + folderName)
+				os.mkdir("./NFPackages/" + folderName)
+				zipPackage.extractall("./NFPackages/" + folderName)
+			yamlFile = open("./NFPackages/" + folderName + "/Scripts/install.yaml", "r")
+			response = requests.post('http://localhost:6667/configure/', data=yamlFile.read())
+		
+		elif request == "start":
+			response = requests.post('http://localhost:6667/start/')
+		
+		elif request == "stop":
+			response = requests.post('http://localhost:6667/stop/')
+		
+		elif request == "off":
+			response = requests.post('http://localhost:6667/off/')
+			socketAgent.close()
+			break
+
+		elif request == "close":
+			socketAgent.close()
+			break			
+
+# ###################################### RUNNING ENVIRONMENT #######################################
+
+socketInterface = Process(target=socketAgent, args=("localhost",))
+socketInterface.start()
+httpInterface.run(server=httpServer, debug=True)
