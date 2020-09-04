@@ -44,8 +44,20 @@ class ConfAgentServer(ServerAdapter):
     def stop(self):
     	self.server.server_close()
 
+if len(sys.argv) != 2:
+	print("USAGE: *.py MANAGEMENT_IP")
+	exit(0)
+
+try:
+	socket.inet_aton(sys.argv[1])
+except:
+	print("ERROR: INVALID IP ADDRESS PROVIDED")
+	exit(0)
+
+interfaceIP = sys.argv[1]
+
 httpInterface = Bottle()
-httpServer = ConfAgentServer(host="localhost", port=6667)
+httpServer = ConfAgentServer(host=interfaceIP, port=6667)
 
 # ###################################### CONFIGURATION FUNCTIONS #######################################
 
@@ -213,6 +225,8 @@ def platformStart():
 	global maInstance
 	global irInstance
 
+	global interfaceIP
+
 	if platformOn:
 		return "-1"
 	if ppsInstace == None:
@@ -224,7 +238,7 @@ def platformStart():
 	time.sleep(1.000)
 	vnsInstance.vnsStart()
 	time.sleep(0.500)
-	maInstance.maStart()
+	maInstance.maStart(interfaceIP)
 	time.sleep(0.500)
 	if nshpInstance != False:
 		nshpInstance.nshpStart()
@@ -279,13 +293,14 @@ def platformReset():
 def platformOff():
 	
 	global platformOn
+	global interfaceIP
 	global httpServer
 
 	if platformOn:
 		return "-1"
 
 	closeSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	closeSocket.sendto("close".encode("utf-8"), ('localhost', 12345))
+	closeSocket.sendto("close".encode("utf-8"), (interfaceIP, 12345))
 	closeSocket.close()
 
 	httpServer.stop()
@@ -334,16 +349,16 @@ def socketAgent(interfaceIP):
 				os.mkdir("./NFPackages/" + folderName)
 				zipPackage.extractall("./NFPackages/" + folderName)
 			yamlFile = open("./NFPackages/" + folderName + "/Scripts/install.yaml", "r")
-			response = requests.post('http://localhost:6667/configure/', data=yamlFile.read())
+			response = requests.post('http://' + interfaceIP + ':6667/configure/', data=yamlFile.read())
 		
 		elif request == "start":
-			response = requests.post('http://localhost:6667/start/')
+			response = requests.post('http://' + interfaceIP + ':6667/start/')
 		
 		elif request == "stop":
-			response = requests.post('http://localhost:6667/stop/')
+			response = requests.post('http://' + interfaceIP + ':6667/stop/')
 		
 		elif request == "off":
-			response = requests.post('http://localhost:6667/off/')
+			response = requests.post('http://' + interfaceIP + ':6667/off/')
 			socketAgent.close()
 			break
 
@@ -353,6 +368,6 @@ def socketAgent(interfaceIP):
 
 # ###################################### RUNNING ENVIRONMENT #######################################
 
-socketInterface = Process(target=socketAgent, args=("localhost",))
+socketInterface = Process(target=socketAgent, args=(interfaceIP,))
 socketInterface.start()
 httpInterface.run(server=httpServer, debug=True)

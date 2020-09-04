@@ -103,16 +103,16 @@ class ManagementAgent:
 
     #=============== MA SERVERS ===============
 
-    def maServer(self):
+    def maServer(self, interfaceIP):
 
         route('/ma/list', callback = self.maList)
         route('/ma/check', callback = self.maCheck)
         route('/ma/request/<rFile>/<rRequest>', callback = self.maRequest)
-        run(host='localhost', port = 6668, debug = True)
+        run(host = interfaceIP, port = 6668, debug = True)
 
-    def maStart(self):
+    def maStart(self, interfaceIP):
 
-        self.maProcess = multiprocessing.Process(target=self.maServer)
+        self.maProcess = multiprocessing.Process(target=self.maServer, args=(interfaceIP,))
         self.maProcess.start()
 
     def maStop(self):
