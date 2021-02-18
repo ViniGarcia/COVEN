@@ -44,20 +44,20 @@ while True:
 		break
 
 	if userInput == 'list':
-	    response = get('http://' + interfaceIP + ':6668/ma/list')
+	    response = get('http://' + interfaceIP + ':6667/ma/list')
 	    print(response.text)
 	if userInput == 'check':
-	    response = get('http://' + interfaceIP + ':6668/ma/check')
+	    response = get('http://' + interfaceIP + ':6667/ma/check')
 	    print(response.text)
 	if userInput == 'request1':
-	    response = get('http://' + interfaceIP + ':6668/ma/request/Forward.java/Packets')
+	    response = get('http://' + interfaceIP + ':6667/ma/request/Forward.java/Packets')
 	    print(response.text)
 	if userInput == 'request2':
-	    response = get('http://' + interfaceIP + ':6668/ma/request/Forward1.py/Packets')
+	    response = get('http://' + interfaceIP + ':6667/ma/request/Forward1.py/Packets')
 	    print(response.text)
 	if userInput == 'request3':
-	    response = get('http://' + interfaceIP + ':6668/ma/request/Forward2.py/Packets')
+	    response = get('http://' + interfaceIP + ':6667/ma/request/Forward2.py/Packets')
 	    print(response.text)
 	if userInput == 'request4':
-	    response = get('http://' + interfaceIP + ':6668/ma/request/Forward.cli/Packets')
+	    response = get('http://' + interfaceIP + ':6667/ma/request/Forward.cli/Packets')
 	    print(response.text)

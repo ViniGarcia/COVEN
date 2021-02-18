@@ -16,8 +16,6 @@ class ManagementAgent:
     maComponentsSockets = None
     maComponentsRequests = None
 
-    maProcess = None
-
     #componentPorts = dictionary with file name as key containing a tuple
     #                 -> [0]: input port
     #                 -> [1]: output port
@@ -103,21 +101,21 @@ class ManagementAgent:
 
     #=============== MA SERVERS ===============
 
-    def maServer(self, interfaceIP):
+    def maStart(self, httpInterface):
 
-        route('/ma/list', callback = self.maList)
-        route('/ma/check', callback = self.maCheck)
-        route('/ma/request/<rFile>/<rRequest>', callback = self.maRequest)
-        run(host = interfaceIP, port = 6668, debug = True)
+        httpInterface.route('/ma/list', callback = self.maList, method='GET')
+        httpInterface.route('/ma/check', callback = self.maCheck, method='GET')
+        httpInterface.route('/ma/request/<rFile>/<rRequest>', callback = self.maRequest, method='GET')
 
-    def maStart(self, interfaceIP):
-
-        self.maProcess = multiprocessing.Process(target=self.maServer, args=(interfaceIP,))
-        self.maProcess.start()
-
-    def maStop(self):
-
-        self.maProcess.terminate()
+    def maStop(self, httpInterface):
+        
+        del httpInterface.router.builder['/ma/list']
+        del httpInterface.router.static['GET']['/ma/list']
+        del httpInterface.router.builder['/ma/check']
+        del httpInterface.router.static['GET']['/ma/check']
+        del httpInterface.router.builder['/ma/request/<rFile>/<rRequest>']
+        httpInterface.router.dyna_regexes['GET'] = [] #IT JUST WORKS BECAUSE WE DO NOT HAVE DYNAMIC CALLS IN CONF. AGENT
+        httpInterface.router.dyna_routes['GET'] = [] #IT JUST WORKS BECAUSE WE DO NOT HAVE DYNAMIC CALLS IN CONF. AGENT
 
     #=============== MA TEST ===============
 

@@ -238,7 +238,7 @@ def platformStart():
 	time.sleep(1.000)
 	vnsInstance.vnsStart()
 	time.sleep(0.500)
-	maInstance.maStart(interfaceIP)
+	maInstance.maStart(httpInterface)
 	time.sleep(0.500)
 	if nshpInstance != False:
 		nshpInstance.nshpStart()
@@ -260,7 +260,7 @@ def platformStop():
 		return "-1"
 
 	irInstance.irStop()
-	maInstance.maStop()
+	maInstance.maStop(httpInterface)
 	vnsInstance.vnsStop()
 	if nshpInstance != False:
 		nshpInstance.nshpStop()
