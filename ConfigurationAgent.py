@@ -300,7 +300,7 @@ def platformOff():
 		return "-1"
 
 	closeSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	closeSocket.sendto("close".encode("utf-8"), (interfaceIP, 12345))
+	closeSocket.sendto("close".encode("utf-8"), (interfaceIP, 6668))
 	closeSocket.close()
 
 	httpServer.stop()
@@ -308,7 +308,7 @@ def platformOff():
 # ###################################### SOCKET BASIC INTERFACE #######################################
 
 def socketPackage(socketAgent, fileName, fileSize):
-	
+
 	filePackage = open("./NFPackages/" + fileName, "wb+")
 	fileReceived = 0
 	while fileReceived < fileSize:
@@ -319,50 +319,94 @@ def socketPackage(socketAgent, fileName, fileSize):
 	return 0
 
 def socketAgent(interfaceIP):
-	print("SOCKET INTERFACE IS RUNNING AT " + interfaceIP + ":12345\n")
+	print("SOCKET INTERFACE IS RUNNING AT " + interfaceIP + ":6668\n")
 	socketAgent = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	socketAgent.bind((interfaceIP, 12345))
+	socketAgent.bind((interfaceIP, 6668))
 
 	while True:
 		request, client = socketAgent.recvfrom(1024)
-		request = request.decode("utf-8")
+		request = request.decode()
 		print(client[0], "- -", "[" + datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "]", "\"SOCK REQ " + request + "\"")
 
 		if request.startswith("package"):
-			data = request.split("|")
-			if len(data) != 3:
-				continue
-			if not data[2].isdigit():
-				continue
-			response = socketPackage(socketAgent, data[1], int(data[2]))
+			try:
+				data = request.split("|")
+				if len(data) != 3:
+					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION".encode(), (client[0], 6668))
+					continue
+				if not data[2].isdigit():
+					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION".encode(), (client[0], 6668))
+					continue
+				response = socketPackage(socketAgent, data[1], int(data[2]))
+				if not response:
+					socketAgent.sendto("200|SUCCESFULLY EXECUTED THE PACKAGE OPERATION".encode(), (client[0], 6668))
+			except:
+				socketAgent.sendto("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION".encode(), (client[0], 6668))
 		
 		elif request.startswith("install"):
-			data = request.split("|")
-			if len(data) != 2:
-				continue
-			if not data[1] in os.listdir("./NFPackages/"):
-				continue
-			with zipfile.ZipFile("./NFPackages/" + data[1], 'r') as zipPackage:
-				folderName = data[1][:data[1].rfind(".")]
-				if folderName in os.listdir("./NFPackages/"):
-					shutil.rmtree("./NFPackages/" + folderName)
-				os.mkdir("./NFPackages/" + folderName)
-				zipPackage.extractall("./NFPackages/" + folderName)
-			yamlFile = open("./NFPackages/" + folderName + "/Scripts/install.yaml", "r")
-			response = requests.post('http://' + interfaceIP + ':6667/configure/', data=yamlFile.read())
-		
+			try:
+				data = request.split("|")
+				if len(data) != 2:
+					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE INSTALL OPERATION".encode(), (client[0], 6668))
+					continue
+				if not data[1] in os.listdir("./NFPackages/"):
+					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE INSTALL OPERATION".encode(), (client[0], 6668))
+					continue
+				with zipfile.ZipFile("./NFPackages/" + data[1], 'r') as zipPackage:
+					folderName = data[1][:data[1].rfind(".")]
+					if folderName in os.listdir("./NFPackages/"):
+						shutil.rmtree("./NFPackages/" + folderName)
+					os.mkdir("./NFPackages/" + folderName)
+					zipPackage.extractall("./NFPackages/" + folderName)
+				yamlFile = open("./NFPackages/" + folderName + "/Scripts/install.yaml", "r")
+				response = requests.post('http://' + interfaceIP + ':6667/configure/', data=yamlFile.read())
+				socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+			except:
+				socketAgent.sendto("400|AN ERROR OCCURRED DURING THE INSTALL OPERATION".encode(), (client[0], 6668))
+
 		elif request == "start":
 			response = requests.post('http://' + interfaceIP + ':6667/start/')
+			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
 		
 		elif request == "stop":
 			response = requests.post('http://' + interfaceIP + ':6667/stop/')
-		
+			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+
+		elif request == "reset":
+			response = requests.post('http://' + interfaceIP + ':6667/reset/')
+			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+
+		elif request == "status":
+			response = requests.get('http://' + interfaceIP + ':6667/status/')
+			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+
+		elif request == "list":
+			response = requests.get('http://' + interfaceIP + ':6667/ma/list')
+			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+
+		elif request == "check":
+			response = requests.get('http://' + interfaceIP + ':6667/ma/check')
+			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+
+		elif request.startswith("request"):
+			try:
+				data = request.split("|")
+				if len(data) != 4:
+					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE REQUEST OPERATION".encode(), (client[0], 6668))
+					continue
+				response = requests.get('http://' + interfaceIP + ':6667/ma/request/' + data[1] + '/' + data[2], data = data[3])
+				socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+			except:
+				socketAgent.sendto("400|AN ERROR OCCURRED DURING THE REQUEST OPERATION".encode(), (client[0], 6668))
+
 		elif request == "off":
 			response = requests.post('http://' + interfaceIP + ':6667/off/')
+			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
 			socketAgent.close()
 			break
 
 		elif request == "close":
+			response = socketAgent.sendto("200|SUCCESFULLY EXECUTED THE PACKAGE OPERATION".encode(), (client[0], 6668))
 			socketAgent.close()
 			break			
 
