@@ -1,0 +1,44 @@
+PPS:
+  - Framework: JavaFramework
+    NFs:
+      - File: Example/Forward.java
+        Order: 1
+        Input: 8008
+        Output: 8009
+        EMA:
+          Port: 8020
+          Requests:
+            Packets: PP
+  - Framework: Python3Framework
+    NFs:
+      - File: Example/Forward1.py
+        Order: 2
+        Input: 8010
+        Output: 8011
+        EMA:
+          Port: 8021
+          Requests:
+            Packets: PP
+  - Framework: ExeFramework
+    NFs:
+      - File: Example/ForwardC
+        Order: 3
+        Input: 8012
+        Output: 8013
+  - Framework: ClickFramework
+    NFs:
+      - File: Example/Forward.cli
+        Order: 4
+        Input: 8014
+        Output: 8015
+        EMA:
+          Port: 8023
+          Requests:
+            Packets: READ packages\n
+VNS:
+  Tool: L2Socket
+  Input:
+    - wlp3s0
+  Output:
+    - enp0s25
+NSHP: False

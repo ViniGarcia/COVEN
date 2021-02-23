@@ -168,8 +168,49 @@ def platformStatus():
 	else:
 		return 'Off'
 
-@httpInterface.route('/configure/', method='POST')
-def platformConf():
+def platformPackageCore(name, data):
+	try:
+		packageFile = open("./NFPackages/" + name + ".coven", "wb+")
+		packageFile.write(data)
+		packageFile.close()
+	except:
+		return "-8"
+
+	return "0"
+
+@httpInterface.route('/package/<name>/', method='POST')
+def platformPackage(name):
+
+		return platformPackageCore(name, request.body.read())
+
+@httpInterface.route('/install/<name>/', method='POST')
+def platformInstall(name):
+
+	if not name + ".coven" in os.listdir("./NFPackages/"):
+		return "-9"
+
+	with zipfile.ZipFile("./NFPackages/" + name + ".coven", 'r') as zipPackage:
+		extension = name.rfind(".")
+		if extension > 0:
+			name = name[:name.rfind(".")]
+		if name in os.listdir("./NFPackages/"):
+			shutil.rmtree("./NFPackages/" + name)
+		os.mkdir("./NFPackages/" + name)
+		zipPackage.extractall("./NFPackages/" + name)
+		yamlFile = open("./NFPackages/" + name + "/Scripts/install.yaml", "r")
+		response = platformConfCore(yamlFile.read())
+		yamlFile.close()
+		return response
+
+@httpInterface.route('/setup/<name>/', method='POST')
+def platformSetup(name):
+
+	response = platformPackageCore(name, request.body.read())
+	if response != "0":
+		return response
+	return platformInstall(name)
+
+def platformConfCore(confYAML):
 
 	global platformOn
 	global ppsInstace
@@ -183,7 +224,6 @@ def platformConf():
 	if ppsInstace != None:
 		return "-2"
 
-	confYAML = request.body.read()
 	try:
 		dictYAML = yaml.safe_load(confYAML)
 	except:
@@ -214,6 +254,12 @@ def platformConf():
 		irInstance = createIR(dictYAML, vnsInstance, None)
 
 	return "0"
+
+@httpInterface.route('/configure/', method='POST')
+def platformConf():
+
+	return platformConfCore(request.body.read())
+
 
 @httpInterface.route('/start/', method='POST')
 def platformStart():
