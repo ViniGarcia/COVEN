@@ -140,7 +140,7 @@ def createMA(dictYAML):
 				netFunction['EMA']['Requests'][operation] = netFunction['EMA']['Requests'][operation].replace('\\n', '\n')
 			componentRequests[nfName] = netFunction['EMA']['Requests']
 
-	return ManagementAgent(componentsPorts, componentsSockets, componentRequests)
+	return ManagementAgent(componentsPorts, componentsSockets, componentRequests, httpInterface)
 
 def createIR(dictYAML, vnsInstance, nshpInstance):
 
@@ -197,10 +197,7 @@ def platformInstall(name):
 			shutil.rmtree("./NFPackages/" + name)
 		os.mkdir("./NFPackages/" + name)
 		zipPackage.extractall("./NFPackages/" + name)
-		yamlFile = open("./NFPackages/" + name + "/Scripts/install.yaml", "r")
-		response = platformConfCore(yamlFile.read())
-		yamlFile.close()
-		return response
+		return "0"
 
 @httpInterface.route('/setup/<name>/', method='POST')
 def platformSetup(name):
@@ -284,13 +281,15 @@ def platformStart():
 	time.sleep(1.000)
 	vnsInstance.vnsStart()
 	time.sleep(0.500)
-	maInstance.maStart(httpInterface)
+	maInstance.maStart()
 	time.sleep(0.500)
 	if nshpInstance != False:
 		nshpInstance.nshpStart()
 		time.sleep(0.500)
 	irInstance.irModulesStart()
 	platformOn = True
+
+	return "0"
 
 @httpInterface.route('/stop/', method='POST')
 def platformStop():
@@ -306,13 +305,15 @@ def platformStop():
 		return "-1"
 
 	irInstance.irStop()
-	maInstance.maStop(httpInterface)
+	maInstance.maStop()
 	vnsInstance.vnsStop()
 	if nshpInstance != False:
 		nshpInstance.nshpStop()
 	ppsInstace.ppsStop()
 
 	platformOn = False
+
+	return "0"
 
 @httpInterface.route('/reset/', method='POST')
 def platformReset():
@@ -329,11 +330,15 @@ def platformReset():
 	if ppsInstace == None:
 		return "-2"
 
+	irInstance.irReset()
+
 	ppsInstace = None
 	vnsInstance = None
 	nshpInstance = None
 	maInstance = None
 	irInstance = None
+
+	return "0"
 
 @httpInterface.route('/off/', method='POST')
 def platformOff():
@@ -351,11 +356,13 @@ def platformOff():
 
 	httpServer.stop()
 
+	return "0"
+
 # ###################################### SOCKET BASIC INTERFACE #######################################
 
 def socketPackage(socketAgent, fileName, fileSize):
 
-	filePackage = open("./NFPackages/" + fileName, "wb+")
+	filePackage = open("./NFPackages/" + fileName + ".coven", "wb+")
 	fileReceived = 0
 	while fileReceived < fileSize:
 		data, client = socketAgent.recvfrom(1024)
@@ -366,95 +373,163 @@ def socketPackage(socketAgent, fileName, fileSize):
 
 def socketAgent(interfaceIP):
 	print("SOCKET INTERFACE IS RUNNING AT " + interfaceIP + ":6668\n")
-	socketAgent = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	socketAgent.bind((interfaceIP, 6668))
+	socketConnector = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	socketConnector.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	socketConnector.bind((interfaceIP, 6668))
+	socketConnector.listen(1)
+
+	def packageFunction(packageName, packageSize):
+		try:
+			response = socketPackage(socketAgent, packageName, int(packageSize))
+			if not response:
+				return "200|SUCCESFULLY EXECUTED THE PACKAGE OPERATION"
+		except Exception as e:
+			return "400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION (" + str(e) + ")"
+
+	def installFunction(packageName):
+		try:
+			with zipfile.ZipFile("./NFPackages/" + packageName + ".coven", 'r') as zipPackage:
+				extension = packageName.rfind(".")
+				if extension > 0:
+					packageName = packageName[:packageName.rfind(".")]
+				if packageName in os.listdir("./NFPackages/"):
+					shutil.rmtree("./NFPackages/" + packageName)
+				os.mkdir("./NFPackages/" + packageName)
+				zipPackage.extractall("./NFPackages/" + packageName)
+				return "200|SUCCESFULLY EXECUTED THE INSTALL OPERATION" 
+		except Exception as e:
+			return "400|AN ERROR OCCURRED DURING THE INSTALL OPERATION (" + str(e) + ")"
 
 	while True:
-		request, client = socketAgent.recvfrom(1024)
-		request = request.decode()
-		print(client[0], "- -", "[" + datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "]", "\"SOCK REQ " + request + "\"")
+		socketAgent, socketAddress = socketConnector.accept()
+		request = socketAgent.recv(1024)
+		try:
+			request = request.decode()
+		except:
+			socketAgent.sendall("400|AN ERROR OCCURRED DURING THE REQUEST".encode())
+			socketAgent.close()
+			continue
+
+		print(socketAddress, "- -", "[" + datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "]", "\"SOCK REQ " + request + "\"")
 
 		if request.startswith("package"):
 			try:
 				data = request.split("|")
 				if len(data) != 3:
-					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION".encode(), (client[0], 6668))
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION (Invalid arguments)".encode())
+					socketAgent.close()
 					continue
 				if not data[2].isdigit():
-					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION".encode(), (client[0], 6668))
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION (Ivalid digit)".encode())
+					socketAgent.close()
 					continue
-				response = socketPackage(socketAgent, data[1], int(data[2]))
-				if not response:
-					socketAgent.sendto("200|SUCCESFULLY EXECUTED THE PACKAGE OPERATION".encode(), (client[0], 6668))
-			except:
-				socketAgent.sendto("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION".encode(), (client[0], 6668))
-		
+				socketAgent.sendall(packageFunction(data[1], data[2]).encode())
+			except Exception as e:
+				socketAgent.sendall(("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION (" + str(e) + ")").encode())
+				
 		elif request.startswith("install"):
 			try:
 				data = request.split("|")
 				if len(data) != 2:
-					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE INSTALL OPERATION".encode(), (client[0], 6668))
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE INSTALL OPERATION (Invalid arguments)".encode())
+					socketAgent.close()
 					continue
+				if not data[1] + ".coven" in os.listdir("./NFPackages/"):
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE INSTALL OPERATION (Ivalid package)".encode())
+					socketAgent.close()
+					continue
+				socketAgent.sendall(installFunction(data[1]).encode())
+			except Exception as e:
+				socketAgent.sendall(("400|AN ERROR OCCURRED DURING THE INSTALL OPERATION (" + str(e) + ")").encode())
+
+		elif request.startswith("setup"):
+			try:
+				data = request.split("|")
+				if len(data) != 3:
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE SETUP OPERATION (Invalid arguments)".encode())
+					socketAgent.close()
+					continue
+				if not data[2].isdigit():
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE SETUP OPERATION (Ivalid digit)".encode())
+					socketAgent.close()
+					continue
+				response = packageFunction(data[1], data[2])
+				if not response.startswith("200"):
+					socketAgent.sendall(response.encode())
+					socketAgent.close()
+					continue
+				socketAgent.sendall(installFunction(data[1]).encode())
+			except Exception as e:
+				socketAgent.sendall(("400|AN ERROR OCCURRED DURING THE SETUP OPERATION (" + str(e) + ")").encode())
+
+		elif request.startswith("configure"):
+			try:
+				data = request.split("|")
+				if len(data) != 2:
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE CONFIGURE OPERATION (Invalid arguments)".encode())
+					socketAgent.close()
+					continue
+				extension = data[1].rfind(".")
+				if extension > 0:
+					data[1] = data[1][:data[1].rfind(".")]
 				if not data[1] in os.listdir("./NFPackages/"):
-					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE INSTALL OPERATION".encode(), (client[0], 6668))
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE CONFIGURE OPERATION (Ivalid package)".encode())
+					socketAgent.close()
 					continue
-				with zipfile.ZipFile("./NFPackages/" + data[1], 'r') as zipPackage:
-					folderName = data[1][:data[1].rfind(".")]
-					if folderName in os.listdir("./NFPackages/"):
-						shutil.rmtree("./NFPackages/" + folderName)
-					os.mkdir("./NFPackages/" + folderName)
-					zipPackage.extractall("./NFPackages/" + folderName)
-				yamlFile = open("./NFPackages/" + folderName + "/Scripts/install.yaml", "r")
+				yamlFile = open("./NFPackages/" + data[1] + "/Scripts/install.yaml", "r")
 				response = requests.post('http://' + interfaceIP + ':6667/configure/', data=yamlFile.read())
-				socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
-			except:
-				socketAgent.sendto("400|AN ERROR OCCURRED DURING THE INSTALL OPERATION".encode(), (client[0], 6668))
+				socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
+			except Exception as e:
+				socketAgent.sendall(("400|AN ERROR OCCURRED DURING THE CONFIGURE OPERATION (" + str(e) + ")").encode())
 
 		elif request == "start":
 			response = requests.post('http://' + interfaceIP + ':6667/start/')
-			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
 		
 		elif request == "stop":
 			response = requests.post('http://' + interfaceIP + ':6667/stop/')
-			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
 
 		elif request == "reset":
 			response = requests.post('http://' + interfaceIP + ':6667/reset/')
-			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
 
 		elif request == "status":
 			response = requests.get('http://' + interfaceIP + ':6667/status/')
-			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
 
 		elif request == "list":
 			response = requests.get('http://' + interfaceIP + ':6667/ma/list')
-			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
 
 		elif request == "check":
 			response = requests.get('http://' + interfaceIP + ':6667/ma/check')
-			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
 
 		elif request.startswith("request"):
 			try:
 				data = request.split("|")
 				if len(data) != 4:
-					socketAgent.sendto("400|AN ERROR OCCURRED DURING THE REQUEST OPERATION".encode(), (client[0], 6668))
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE REQUEST OPERATION (Invalid arguments)".encode())
+					socketAgent.close()
 					continue
 				response = requests.get('http://' + interfaceIP + ':6667/ma/request/' + data[1] + '/' + data[2], data = data[3])
-				socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
-			except:
-				socketAgent.sendto("400|AN ERROR OCCURRED DURING THE REQUEST OPERATION".encode(), (client[0], 6668))
+				socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
+			except Exception as e:
+				socketAgent.sendto("400|AN ERROR OCCURRED DURING THE REQUEST OPERATION (" + str(e) + ")".encode())
 
 		elif request == "off":
 			response = requests.post('http://' + interfaceIP + ':6667/off/')
-			socketAgent.sendto((str(response.status_code) + "|" + response.text).encode(), (client[0], 6668))
+			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
 			socketAgent.close()
 			break
 
 		elif request == "close":
-			response = socketAgent.sendto("200|SUCCESFULLY EXECUTED THE PACKAGE OPERATION".encode(), (client[0], 6668))
+			response = socketAgent.sendall("200|SUCCESFULLY EXECUTED THE CLOSING OPERATION".encode())
 			socketAgent.close()
-			break			
+			break
+
+		socketAgent.close()			
 
 # ###################################### RUNNING ENVIRONMENT #######################################
 

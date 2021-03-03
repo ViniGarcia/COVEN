@@ -15,6 +15,7 @@ class ManagementAgent:
     maComponentsPorts = None
     maComponentsSockets = None
     maComponentsRequests = None
+    maAvailable = False
 
     #componentPorts = dictionary with file name as key containing a tuple
     #                 -> [0]: input port
@@ -24,15 +25,25 @@ class ManagementAgent:
     #componentsRequest = dictionarty with file name as key containining
     #                    the EA operations dictionary which, in turn,
     #                    contains the request ID and its operation message.
-    def __init__(self, componentsPorts, componentsSockets, componentRequests):
+    def __init__(self, componentsPorts, componentsSockets, componentRequests, httpInterface):
 
         self.maComponentsPorts = componentsPorts
         self.maComponentsSockets = componentsSockets
         self.maComponentsRequests = componentRequests
 
+        try:
+            httpInterface.route('/ma/list', callback = self.maList, method='GET')
+            httpInterface.route('/ma/check', callback = self.maCheck, method='GET')
+            httpInterface.route('/ma/request/<rFile>/<rRequest>', callback = self.maRequest, method='GET')
+        except:
+            pass
+
     #=============== MA METHODS ===============
 
     def maList(self):
+        if not self.maAvailable:
+            return "ERROR: THE MANAGEMENT AGENT IS NOT AVAILABLE"
+
         listString = "\n---- AVAILABLE OPERATIONS ----\n\n"
         listString += "list: show this\n"
         listString += "check: check the components in and out connections\n"
@@ -50,6 +61,8 @@ class ManagementAgent:
         return listString
 
     def maCheck(self):
+        if not self.maAvailable:
+            return "ERROR: THE MANAGEMENT AGENT IS NOT AVAILABLE"
 
         results = "\n---- CHECK SUMMARY ----\n\n"
 
@@ -75,6 +88,8 @@ class ManagementAgent:
         return results
 
     def maRequest(self, rFile, rRequest):
+        if not self.maAvailable:
+            return "ERROR: THE MANAGEMENT AGENT IS NOT AVAILABLE"
 
         if not rFile in self.maComponentsSockets:
             return "ERROR: INVALID FILE!!"
@@ -101,21 +116,21 @@ class ManagementAgent:
 
     #=============== MA SERVERS ===============
 
-    def maStart(self, httpInterface):
+    def maStart(self):
 
-        httpInterface.route('/ma/list', callback = self.maList, method='GET')
-        httpInterface.route('/ma/check', callback = self.maCheck, method='GET')
-        httpInterface.route('/ma/request/<rFile>/<rRequest>', callback = self.maRequest, method='GET')
+        self.maAvailable = True
 
-    def maStop(self, httpInterface):
+    def maStop(self):
         
-        del httpInterface.router.builder['/ma/list']
+        self.maAvailable = False
+
+        '''del httpInterface.router.builder['/ma/list']
         del httpInterface.router.static['GET']['/ma/list']
         del httpInterface.router.builder['/ma/check']
         del httpInterface.router.static['GET']['/ma/check']
         del httpInterface.router.builder['/ma/request/<rFile>/<rRequest>']
         httpInterface.router.dyna_regexes['GET'] = [] #IT JUST WORKS BECAUSE WE DO NOT HAVE DYNAMIC CALLS IN CONF. AGENT
-        httpInterface.router.dyna_routes['GET'] = [] #IT JUST WORKS BECAUSE WE DO NOT HAVE DYNAMIC CALLS IN CONF. AGENT
+        httpInterface.router.dyna_routes['GET'] = [] #IT JUST WORKS BECAUSE WE DO NOT HAVE DYNAMIC CALLS IN CONF. AGENT'''
 
     #=============== MA TEST ===============
 

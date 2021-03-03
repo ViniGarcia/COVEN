@@ -26,9 +26,11 @@ class ppsiCommunication:
 		if self.ppsiInPort:
 			self.ppsiInSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.ppsiInSocket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1514)
+			self.ppsiInSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		if self.ppsiOutPort:
 			self.ppsiOutSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.ppsiOutSocket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1514)
+			self.ppsiOutSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 	def ppsiStart(self):
 
@@ -40,6 +42,17 @@ class ppsiCommunication:
 		while (True):
 			pkt = self.ppsiInConn.recv(1514)
 			self.ppsiOutSocket.send(pkt)
+
+	def ppsiStop(self):
+
+		try:
+			self.ppsiInSocket.shutdown(socket.SHUT_RDWR)
+			self.ppsiOutSocket.shutdown(socket.SHUT_RDWR)
+		except:
+			pass
+			
+		self.ppsiInSocket.close()
+		self.ppsiOutSocket.close()
 
 #============== IR CLASS ==============
 
@@ -80,8 +93,10 @@ class InternalRouter:
 			self.irOrdIntPorts = irOrdIntPorts
 			self.irIngressSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.irIngressSocket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1514)
+			self.irIngressSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 			self.irEgressSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			self.irIngressSocket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1514)
+			self.irEgressSocket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1514)
+			self.irEgressSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 	#============== IR METHODS ==============
 
@@ -222,6 +237,20 @@ class InternalRouter:
 		else:
 			self.VNSPPSProcess.terminate()
 			self.PPSVNSProcess.terminate()
+
+	def irReset(self):
+
+		try:
+			self.irIngressSocket.shutdown(socket.SHUT_RDWR)
+			self.irIngressSocket.close()
+			self.irEgressSocket.shutdown(socket.SHUT_RDWR)
+			self.irEgressSocket.close()
+		except:
+			self.irIngressSocket.close()
+			self.irEgressConnection.close()
+
+		for iConnection in self.irInternalConnections:
+			iConnection.ppsiStop()
 
 
 #============== IR TEST (NO NSH) ==============
