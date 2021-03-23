@@ -37,7 +37,7 @@ class ConfAgentServer(ServerAdapter):
             class QuietHandler(WSGIRequestHandler):
                 def log_request(*args, **kw): pass
             self.options['handler_class'] = QuietHandler
-        
+
         self.server = make_server(self.host, self.port, handler, **self.options)
         self.server.serve_forever()
 
@@ -342,7 +342,7 @@ def platformReset():
 
 @httpInterface.route('/off/', method='POST')
 def platformOff():
-	
+
 	global platformOn
 	global interfaceIP
 	global httpServer
@@ -426,7 +426,7 @@ def socketAgent(interfaceIP):
 				socketAgent.sendall(packageFunction(data[1], data[2]).encode())
 			except Exception as e:
 				socketAgent.sendall(("400|AN ERROR OCCURRED DURING THE PACKAGE OPERATION (" + str(e) + ")").encode())
-				
+
 		elif request.startswith("install"):
 			try:
 				data = request.split("|")
@@ -485,7 +485,7 @@ def socketAgent(interfaceIP):
 		elif request == "start":
 			response = requests.post('http://' + interfaceIP + ':6667/start/')
 			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
-		
+
 		elif request == "stop":
 			response = requests.post('http://' + interfaceIP + ':6667/stop/')
 			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
@@ -529,7 +529,7 @@ def socketAgent(interfaceIP):
 			socketAgent.close()
 			break
 
-		socketAgent.close()			
+		socketAgent.close()
 
 # ###################################### RUNNING ENVIRONMENT #######################################
 
