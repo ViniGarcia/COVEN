@@ -533,6 +533,18 @@ def socketAgent(interfaceIP):
 
 # ###################################### RUNNING ENVIRONMENT #######################################
 
+print('\n================================================')
+print('   ____   U  ___ u__     __ U _____ u _   _     ')
+print('U /"___|   \\/"_ \\/\\ \\   /"/u\\| ___"|/| \\ |"|    ')
+print('\\| | u     | | | | \\ \\ / //  |  _|" <|  \\| |>   ')
+print(' | |/__.-,_| |_| | /\\ V /_,-.| |___ U| |\\  |u   ')
+print('  \\____|\\_)-\\___/ U  \\_/-(_/ |_____| |_| \\_|    ')
+print(' _// \\\\      \\\\     //       <<   >> ||   \\\\,-. ')
+print('(__)(__)    (__)   (__)     (__) (__)(_")  (_/  ')
+print('================================================\n')
+
 socketInterface = Process(target=socketAgent, args=(interfaceIP,))
 socketInterface.start()
 httpInterface.run(server=httpServer, debug=True)
+
+
