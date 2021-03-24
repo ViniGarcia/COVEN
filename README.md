@@ -5,8 +5,7 @@ COVEN Platform: COmprehensive VirtualizEd NF Platform
 
 ### What is COVEN?
 
-CONVEN is a platform to execute virtualized network function instances. To do that, COVEN implements an innovative Virtualized Network Function latform architecture that natively enables the Network Service Header and Virtualized Network Functions Components. Also, the COVEN platform contains a flexible management agent that provides life cycle and monitoring operations together extensible agents. Extensible agent, in turn, is an innovative concept of personalized management operations implemented directly in the network function and/or network funciton components source code. It is controlled by the management agent through a standart communication channel. In addition, the COVEN platform is generically implemented and can be executed by any virtual machine or container with Python 3 support.<br/>
-<br/>
+<p align="justify">CONVEN is a platform to execute virtualized network function instances. To do that, COVEN implements an innovative Virtualized Network Function latform architecture that natively enables the Network Service Header and Virtualized Network Functions Components. Also, the COVEN platform contains a flexible management agent that provides life cycle and monitoring operations together extensible agents. Extensible agent, in turn, is an innovative concept of personalized management operations implemented directly in the network function and/or network funciton components source code. It is controlled by the management agent through a standart communication channel. In addition, the COVEN platform is generically implemented and can be executed by any virtual machine or container with Python 3 support.</p>
 
 ### How was it developed?
 
@@ -42,7 +41,11 @@ To execute the project example follow these steps:
 3. In the example script execute the "configure"
 4. In the example script execute the "start"
 
-After that, the platform and the network function components will be running. To stop the server execute "status", "stop", "reset", "off", and "end". If the the network function components are running management operations can be requested by the commands "list", "check", "request1", "request2", "request3", and "request4".
+<p align="justify">After that, the platform and the network function components will be running. The management operations are "status", "stop", "reset", "off", and "end". If the the network function components are running, other management operations can be requested by the commands "list", "check", "request1", "request2", "request3", and "request4".</p>
+
+### COVEN VM Image
+
+<p align="justify">COVEN is also provided as a VM image through the Ubuntu Cloud operating system. You can download the VM image version <a href="https://drive.google.com/file/d/19nZRT_vcGzjy0eZeiya1bpEB3lj0N3hT/view?usp=sharing">HERE</a>. The virtual machine standard credentials are "coven" for the username and "coven" for the password. "ens3" (first interface configured in the VM) is the default management interface, being preconfigured to DHCP. Other interfaces can be configured through the "IFACES" script in the home folder (check "./IFACES -h" for more information). To start the COVEN platform, please use the "COVEN" script located in the home folder ("./COVEN").</p>
 
 ### Support
 
@@ -63,10 +66,10 @@ Carlos Raniery Paula dos Santos (Federal University of Santa Maria - Brazil)<br/
 ### Publications and Presentations
 
 -> An NSH-Enabled Architecture for Virtualized Network Function Platforms<br/>
-V. Fülber Garcia, L. da Cruz Marcuzzo, G. Venâncio de Souza, L. Bondan, J. Campos Nobre, A. Egon Schaeffer-Filho, C. R. Paula dos Santos, L. Zambenedetti Granville, E. P. Duarte Júnior, "An NSH-Enabled Architecture for Virtualized Network Function Platforms", 2019. The 33nd International Conference on Advanced Information Networking and Applications (AINA), Matsue, Japan, 03-2019.
+<p align="justify">-V. Fülber Garcia, L. da Cruz Marcuzzo, G. Venâncio de Souza, L. Bondan, J. Campos Nobre, A. Egon Schaeffer-Filho, C. R. Paula dos Santos, L. Zambenedetti Granville, E. P. Duarte Júnior, "An NSH-Enabled Architecture for Virtualized Network Function Platforms", 2019. The 33nd International Conference on Advanced Information Networking and Applications (AINA), Matsue, Japan, 03-2019.</p>
 
 -> Towards a Flexible Architecture for Virtualized Network Function Platforms<br/>
-V. Fülber Garcia, L. da Cruz Marcuzzo, E. P. Duarte Júnior, C. R. Paula dos Santos, "Towards a Flexible Architecture for Virtualized Network Function Platforms", 2019. The ACM Latin American Student Workshop on Data Communication Networks (LANCOMM), Gramado, Brazil, 05-2019.
+<p align="justify">-V. Fülber Garcia, L. da Cruz Marcuzzo, E. P. Duarte Júnior, C. R. Paula dos Santos, "Towards a Flexible Architecture for Virtualized Network Function Platforms", 2019. The ACM Latin American Student Workshop on Data Communication Networks (LANCOMM), Gramado, Brazil, 05-2019.</p>
 
 -> On the Design of a Flexible Architecture for Virtualized Network Function Platforms<br/>
-V. Fülber Garcia, L. da Cruz Marcuzzo, A. Huff, L. Bondan, J. C. Nobre, A. E. Schaeffer-Filho, C. R. P. dos Santos, L. Z. Granville, E. P. Duarte Junior, "On the Design of a Flexible Architecture for Virtualized Network Function Platforms", 2019. The IEEE Global Communications Conference (GLOBECOM), Waikoloa, USA, 12-2019.
+<p align="justify">-V. Fülber Garcia, L. da Cruz Marcuzzo, A. Huff, L. Bondan, J. C. Nobre, A. E. Schaeffer-Filho, C. R. P. dos Santos, L. Z. Granville, E. P. Duarte Junior, "On the Design of a Flexible Architecture for Virtualized Network Function Platforms", 2019. The IEEE Global Communications Conference (GLOBECOM), Waikoloa, USA, 12-2019.</p>
