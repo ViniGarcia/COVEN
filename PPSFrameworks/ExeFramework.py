@@ -27,6 +27,8 @@ class ExeFramework:
 
 	def start(self):
 
+		os.system("chmod +x " + self.exefNFPath)
+
 		if not self.exefNFPath.startswith('/') and not self.exefNFPath.startswith('./'):
 			self.exefNFPath = './' + self.exefNFPath
 
