@@ -291,6 +291,13 @@ def platformStart():
 
 	return "0"
 
+@httpInterface.route('/launch/', method='POST')
+def platformLaunch():
+
+	if platformConfCore(request.body.read()) != "0":
+		return "-1"
+	return platformStart()
+
 @httpInterface.route('/stop/', method='POST')
 def platformStop():
 
@@ -360,6 +367,15 @@ def platformOff():
 
 # ###################################### SOCKET BASIC INTERFACE #######################################
 
+def requestDecode(operationRequest):
+
+	operationRequest = bytearray(operationRequest)
+	completeCouter = operationRequest.count(bytes("\0".encode()))
+	if completeCouter > 0:
+		return operationRequest[:-completeCouter].decode()
+	else:
+		return operationRequest.decode()
+
 def socketPackage(socketAgent, fileName, fileSize):
 
 	filePackage = open("./NFPackages/" + fileName + ".coven", "wb+")
@@ -402,11 +418,11 @@ def socketAgent(interfaceIP):
 
 	while True:
 		socketAgent, socketAddress = socketConnector.accept()
-		request = socketAgent.recv(1024)
+		request = socketAgent.recv(50)
 		try:
-			request = request.decode()
-		except:
-			socketAgent.sendall("400|AN ERROR OCCURRED DURING THE REQUEST".encode())
+			request = requestDecode(request)
+		except Exception as e:
+			socketAgent.sendall(("400|AN ERROR OCCURRED DURING THE REQUEST (" + str(e) + ")").encode())
 			socketAgent.close()
 			continue
 
@@ -483,6 +499,31 @@ def socketAgent(interfaceIP):
 				socketAgent.sendall(("400|AN ERROR OCCURRED DURING THE CONFIGURE OPERATION (" + str(e) + ")").encode())
 
 		elif request == "start":
+			response = requests.post('http://' + interfaceIP + ':6667/start/')
+			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
+
+		elif request.startswith("launch"):
+			try:
+				data = request.split("|")
+				if len(data) != 2:
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE CONFIGURE OPERATION (Invalid arguments)".encode())
+					socketAgent.close()
+					continue
+				extension = data[1].rfind(".")
+				if extension > 0:
+					data[1] = data[1][:data[1].rfind(".")]
+				if not data[1] in os.listdir("./NFPackages/"):
+					socketAgent.sendall("400|AN ERROR OCCURRED DURING THE CONFIGURE OPERATION (Ivalid package)".encode())
+					socketAgent.close()
+					continue
+				yamlFile = open("./NFPackages/" + data[1] + "/Scripts/install.yaml", "r")
+				response = requests.post('http://' + interfaceIP + ':6667/configure/', data=yamlFile.read())
+				if response.status_code != 200:
+					socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
+					continue
+			except Exception as e:
+				socketAgent.sendall(("400|AN ERROR OCCURRED DURING THE CONFIGURE OPERATION (" + str(e) + ")").encode())
+				continue
 			response = requests.post('http://' + interfaceIP + ':6667/start/')
 			socketAgent.sendall((str(response.status_code) + "|" + response.text).encode())
 
