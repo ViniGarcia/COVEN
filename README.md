@@ -45,7 +45,7 @@ To execute the project example follow these steps:
 
 ### COVEN VM Image
 
-<p align="justify">COVEN is also provided as a VM image through the Ubuntu Cloud operating system. You can download the VM image version <a href="https://drive.google.com/file/d/19nZRT_vcGzjy0eZeiya1bpEB3lj0N3hT/view?usp=sharing">HERE</a>. The virtual machine standard credentials are "coven" for the username and "coven" for the password. "ens3" (first interface configured in the VM) is the default management interface, being preconfigured to DHCP. Other interfaces can be configured through the "IFACES" script in the home folder (check "./IFACES -h" for more information). To start the COVEN platform, please use the "COVEN" script located in the home folder ("./COVEN").</p>
+<p align="justify">COVEN is also provided as a VM image through the Ubuntu Cloud operating system. You can download the VM image version <a href="https://drive.google.com/file/d/1JfjA0KFnSXC78-vvOigvfPD7vLRYWwsG/view?usp=sharing">HERE</a>. The virtual machine standard credentials are "coven" for the username and "coven" for the password. "ens3" (first interface configured in the VM) is the default management interface, being preconfigured to DHCP. Other interfaces can be configured through the "IFACES" script in the home folder (check "./IFACES -h" for more information). To start the COVEN platform, please use the "COVEN" script located in the home folder ("./COVEN").</p>
 
 ### Support
 
